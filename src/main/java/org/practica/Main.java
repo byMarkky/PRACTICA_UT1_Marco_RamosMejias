@@ -29,65 +29,10 @@ public class Main {
             return;
         }
 
-        int fileLines = countLines(file);
-
-        // Process per line rounded following ((p-1) / K) + 1
-        int processPerLine = (int) Math.round((double) (fileLines - 1) / nProcesses) + 1;
-
-        List<String> splitedFile = splitFile(file);
-
-        System.out.println("Process per Line: " + processPerLine);
+        ProgramaTransacciones programa = new ProgramaTransacciones(file, nProcesses);
 
     }
 
-    /**
-     * Function that split the file in the number of processes
-     * that the user want
-     * @param file File to be splited
-     * @return Splited file
-     */
-    private static List<String> splitFile(File file) {
-        List<String> splited = new ArrayList<>();
 
-        FileReader fileReader = null;
-        try {
-            fileReader = new FileReader(file);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        try (BufferedReader bf = new BufferedReader(fileReader)) {
-
-            String line = "";
-            // Read until EOF of the file
-            while ((line = bf.readLine()) != null) {
-                splited.add(line);
-            }
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        // Delete the header of the csv
-        splited.remove(splited.removeFirst());
-
-        return splited;
-    }
-
-    /**
-     * Methot that count the number of lines in the csv file
-     * @param file File to be counted
-     * @return Number of lines
-     */
-    private static int countLines(File file) {
-        int lines = 0;
-        try {
-            // Substract 1 because the header don't count.
-            lines = (int) Files.lines(file.toPath()).count() - 1;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        return lines;
-    }
 
 }
