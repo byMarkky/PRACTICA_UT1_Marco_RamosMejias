@@ -12,7 +12,7 @@ public class Main {
         Scanner reader = new Scanner(System.in);
 
         System.out.print("Nombre o ruta del fichero de datos: ");
-        String fileName = reader.next();
+        String fileName = reader.nextLine();
 
         File file = new File(fileName);
 

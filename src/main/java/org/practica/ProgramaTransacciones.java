@@ -3,7 +3,10 @@ package org.practica;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import org.practica.process.Procesator;
 
 public class ProgramaTransacciones {
 
@@ -39,20 +42,31 @@ public class ProgramaTransacciones {
      */
     public void start() {
         List<List<String>> splited = split(this.fileSplited, this.linePerProcess);
-        int i = 1;
-        for (List<String> list : splited) {
-            System.out.println("Lista numero " + i);
-            for (String line : list) {
-                System.out.println(line);
+        for (int i = 0; i < this.nProcess; i++) {
+            ProcessBuilder pb = new ProcessBuilder(
+                    "java",
+                    Procesator.class.getName(),
+                    Arrays.toString(splited.get(i).toArray()),   // Pass the list as a string
+                    String.valueOf(i)                            // Asign the process number
+            );
+
+            pb.directory(new File("target/classes"));
+            pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+            pb.redirectError(ProcessBuilder.Redirect.INHERIT);
+
+            try {
+                pb.start();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-            i++;
         }
     }
 
     // TODO Coment the operation of this function
     /**
-     * Methot that split the list in sublists for the lines per process.
-     * The operation of the function is explained in the code comments.
+     * Methot, copied from stackoverflow, that split the list in sublists
+     * for the lines per process. The operation of the function is explained
+     * in the code comments.
      * @param list List to be splited
      * @param targetSize Size for each sublist
      * @return List of lists of strings
