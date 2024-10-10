@@ -14,6 +14,7 @@ public class ProgramaTransacciones {
     private int linePerProcess;
     private File file;
     private int nProcess;
+    private File PROCESS_ERROR_FILE = new File("errores_conversion.csv");
 
     /**
      * Constructor for ProgramaTransacciones
@@ -32,9 +33,6 @@ public class ProgramaTransacciones {
         fileSplited = splitFile(file);
 
         System.out.println("Process per Line: " + this.linePerProcess);
-
-        start();
-
     }
 
     /**
@@ -47,12 +45,13 @@ public class ProgramaTransacciones {
                     "java",
                     Procesator.class.getName(),
                     Arrays.toString(splited.get(i).toArray()),   // Pass the list as a string
-                    String.valueOf(i)                            // Asign the process number
+                    String.valueOf(i)                            // Assign the process number
             );
 
+            // Config the proccess
             pb.directory(new File("target/classes"));
             pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-            pb.redirectError(ProcessBuilder.Redirect.INHERIT);
+            pb.redirectError(ProcessBuilder.Redirect.appendTo(PROCESS_ERROR_FILE));
 
             try {
                 pb.start();

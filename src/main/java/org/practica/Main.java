@@ -19,7 +19,7 @@ public class Main {
         System.out.print("Numero de procesos: ");
         int nProcesses = reader.nextInt();
 
-        // Validsmos la entrada
+        // Validate the input
         if (!Files.exists(file.toPath())) {
             System.err.println("ERROR: Fichero no existe");
             return;
@@ -30,6 +30,7 @@ public class Main {
         }
 
         ProgramaTransacciones programa = new ProgramaTransacciones(file, nProcesses);
+        programa.start();
 
     }
 
