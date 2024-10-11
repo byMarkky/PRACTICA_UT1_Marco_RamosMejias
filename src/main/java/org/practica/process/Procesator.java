@@ -1,6 +1,9 @@
 package org.practica.process;
 
-import java.text.DecimalFormat;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +11,7 @@ public class Procesator {
     public static void main(String[] args) {
         int processNumber = Integer.parseInt(args[1]);
         List<Transaction> transacciones = parseInput(args[0]);
+        String PROCESS_TEMP_FILE = String.format(String.format("../../temp/process_%d.tmp", processNumber));
 
         checkFraud(transacciones);
 
@@ -16,8 +20,23 @@ public class Procesator {
         System.out.println("Primer ID: " + transacciones.getFirst().getId());
         System.out.println("Ultimo ID: " + transacciones.getLast().getId());
 
-        // TODO Write the results in a temp file
+        File tempFile = new File(PROCESS_TEMP_FILE);
 
+        writeResult(tempFile, transacciones);
+
+    }
+
+    private static void writeResult(File file, List<Transaction> transactions) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
+
+            for (Transaction t : transactions) {
+                bw.write(t.toCSV() + "\n");
+            }
+
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static void checkFraud(List<Transaction> transactions) {

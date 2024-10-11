@@ -2,8 +2,6 @@ package org.practica;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -31,6 +29,8 @@ public class Main {
 
         ProgramaTransacciones programa = new ProgramaTransacciones(file, nProcesses);
         programa.start();
+
+        programa.generateResult();
 
     }
 

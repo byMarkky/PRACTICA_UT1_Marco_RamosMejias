@@ -2,19 +2,22 @@ package org.practica;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.practica.process.Procesator;
 
 public class ProgramaTransacciones {
 
     private List<String> fileSplited;
-    private int linePerProcess;
-    private File file;
-    private int nProcess;
-    private File PROCESS_ERROR_FILE = new File("errores_conversion.csv");
+    private final int linePerProcess;
+    private final int nProcess;
+    private final File PROCESS_ERROR_FILE = new File("errores_conversion.csv");
+    private final List<Integer> PROCESS_IDS;
+    private final File resultFile;
 
     /**
      * Constructor for ProgramaTransacciones
@@ -23,6 +26,10 @@ public class ProgramaTransacciones {
      */
     public ProgramaTransacciones(File file, int n) {
         this.fileSplited = new ArrayList<>();
+        this.PROCESS_IDS = new ArrayList<>();
+        this.resultFile = new File("transacciones_final.csv");
+
+        ProgramaTransacciones.clearFile(PROCESS_ERROR_FILE);
 
         int fileLines = countLines(file);
         this.nProcess = n;
@@ -31,7 +38,6 @@ public class ProgramaTransacciones {
         this.linePerProcess = (int) Math.round((double) (fileLines - 1) / this.nProcess) + 1;
 
         fileSplited = splitFile(file);
-
         System.out.println("Process per Line: " + this.linePerProcess);
     }
 
@@ -40,8 +46,10 @@ public class ProgramaTransacciones {
      */
     public void start() {
         List<List<String>> splited = split(this.fileSplited, this.linePerProcess);
+        ProcessBuilder pb;
         for (int i = 0; i < this.nProcess; i++) {
-            ProcessBuilder pb = new ProcessBuilder(
+            this.PROCESS_IDS.add(i);
+            pb = new ProcessBuilder(
                     "java",
                     Procesator.class.getName(),
                     Arrays.toString(splited.get(i).toArray()),   // Pass the list as a string
@@ -58,6 +66,46 @@ public class ProgramaTransacciones {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+
+        }
+    }
+
+    /**
+     * Methot to create a file 'transacciones_final.csv'
+     */
+    public void generateResult() {
+
+        // Clear the file
+        ProgramaTransacciones.clearFile(this.resultFile);
+
+        for (Integer i : this.PROCESS_IDS) {
+            String PATH_TEMP_FILES = "temp/";
+            File tempFile = Paths.get(PATH_TEMP_FILES + "process_" + i + ".tmp").toFile();
+            try (BufferedReader br = new BufferedReader(new FileReader(tempFile))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    writeLine(line + "\n");
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+    }
+
+    private static void clearFile(File file) {
+        try {
+            Files.write(file.toPath(), "".getBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void writeLine(String line) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(this.resultFile, true))) {
+            bw.write(line);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -73,7 +121,7 @@ public class ProgramaTransacciones {
      */
     public <T> List<List<T>> split(List<T> list,
                                    int targetSize) {
-        List<List<T>> lists = new ArrayList<List<T>>();
+        List<List<T>> lists = new ArrayList<>();
         for (int i = 0; i < list.size(); i += targetSize) {
             lists.add(list.subList(i, Math.min(i + targetSize, list.size())));
         }
@@ -89,7 +137,7 @@ public class ProgramaTransacciones {
     private List<String> splitFile(File file) {
         List<String> splited = new ArrayList<>();
 
-        FileReader fileReader = null;
+        FileReader fileReader;
         try {
             fileReader = new FileReader(file);
         } catch (FileNotFoundException e) {
@@ -97,7 +145,7 @@ public class ProgramaTransacciones {
         }
         try (BufferedReader bf = new BufferedReader(fileReader)) {
 
-            String line = "";
+            String line;
             // Read until EOF of the file
             while ((line = bf.readLine()) != null) {
                 splited.add(line);
@@ -119,10 +167,10 @@ public class ProgramaTransacciones {
      * @return Number of lines
      */
     private int countLines(File file) {
-        int lines = 0;
-        try {
+        int lines;
+        try (Stream<String> str = Files.lines(file.toPath()))  {
             // Substract 1 because the header don't count.
-            lines = (int) Files.lines(file.toPath()).count() - 1;
+            lines = (int) str.count() - 1;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
