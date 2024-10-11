@@ -42,7 +42,7 @@ public class ProgramaTransacciones {
     }
 
     /**
-     * Methot that start the work of the processes
+     * Method that start the work of the processes
      */
     public void start() {
         List<List<String>> splited = split(this.fileSplited, this.linePerProcess);
@@ -71,7 +71,7 @@ public class ProgramaTransacciones {
     }
 
     /**
-     * Methot to create a file 'transacciones_final.csv'
+     * Method to create a file 'transacciones_final.csv'
      */
     public void generateResult() {
 
@@ -87,6 +87,7 @@ public class ProgramaTransacciones {
                     writeLine(line + "\n");
                 }
             } catch (IOException e) {
+                System.err.println("[ERROR] Fichero " + tempFile + " no se pudo encontrar. Exception: ");
                 throw new RuntimeException(e);
             }
         }
@@ -109,12 +110,11 @@ public class ProgramaTransacciones {
         }
     }
 
-    // TODO Coment the operation of this function
     /**
-     * Methot, copied from stackoverflow, that split the list in sublists
-     * for the lines per process. The operation of the function is explained
-     * in the code comments.
-     * @param list List to be splited
+     * Method, that split the list in sublist for
+     * the lines per process. The operation of the
+     * function is explained in the code comments.
+     * @param list List to be split
      * @param targetSize Size for each sublist
      * @return List of lists of strings
      * @param <T> Idk :)
@@ -131,8 +131,8 @@ public class ProgramaTransacciones {
     /**
      * Function that split the file in the number of processes
      * that the user want
-     * @param file File to be splited
-     * @return Splited file
+     * @param file File to be split
+     * @return Split file
      */
     private List<String> splitFile(File file) {
         List<String> splited = new ArrayList<>();
@@ -162,7 +162,7 @@ public class ProgramaTransacciones {
     }
 
     /**
-     * Methot that count the number of lines in the csv file
+     * Method that count the number of lines in the csv file
      * @param file File to be counted
      * @return Number of lines
      */
